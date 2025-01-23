@@ -11,3 +11,11 @@ func start_game():
 
 func quit_game():
 	get_tree().quit()
+
+
+
+func _input(event):
+	if event.is_action_pressed("Esc"):
+		get_window().set_mode(Window.MODE_WINDOWED)
+		get_window().set_size(Vector2(1000, 500))
+		get_window().set_position(get_window().size/2)
