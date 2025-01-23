@@ -8,6 +8,7 @@
 script = ExtResource("1_6lyfi")
 
 [node name="Camera" type="Camera2D" parent="."]
+visible = false
 
 [node name="Map" parent="." instance=ExtResource("1_nraxb")]
 
