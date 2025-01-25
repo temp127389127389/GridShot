@@ -1,7 +1,7 @@
 [gd_scene load_steps=3 format=3 uid="uid://cq7li4lfjo0ew"]
 
-[ext_resource type="Theme" uid="uid://bvug23w70yorr" path="res://assets/big_theme.tres" id="1_f1do3"]
-[ext_resource type="Script" path="res://scenes/MainMenu/MainMenu.gd" id="1_f60t3"]
+[ext_resource type="Script" path="res://scenes/MainMenu/main_menu.gd" id="1_f6mx3"]
+[ext_resource type="Theme" uid="uid://bvug23w70yorr" path="res://assets/big_theme.tres" id="2_lf335"]
 
 [node name="MainMenu" type="Control"]
 layout_mode = 3
@@ -10,7 +10,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-script = ExtResource("1_f60t3")
+script = ExtResource("1_f6mx3")
 
 [node name="ColorRect" type="ColorRect" parent="."]
 layout_mode = 1
@@ -32,7 +32,7 @@ offset_right = 340.0
 offset_bottom = 15.5
 grow_vertical = 2
 focus_mode = 0
-theme = ExtResource("1_f1do3")
+theme = ExtResource("2_lf335")
 text = "Start"
 
 [node name="QuitButton" type="Button" parent="."]
@@ -46,7 +46,7 @@ offset_right = 340.0
 offset_bottom = 14.5
 grow_vertical = 2
 focus_mode = 0
-theme = ExtResource("1_f1do3")
+theme = ExtResource("2_lf335")
 text = "Quit"
 
 [connection signal="pressed" from="StartButton" to="." method="_on_start_button_pressed"]

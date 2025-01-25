@@ -1,16 +1,9 @@
-[gd_scene load_steps=4 format=3 uid="uid://bbxroqrwn3mgo"]
+[gd_scene load_steps=3 format=3 uid="uid://bbxroqrwn3mgo"]
 
-[ext_resource type="Script" path="res://scenes/Game/game.gd" id="1_6lyfi"]
-[ext_resource type="PackedScene" uid="uid://d367qor2xap" path="res://scenes/Map/Map.tscn" id="1_nraxb"]
-[ext_resource type="PackedScene" uid="uid://ktbstc3wotu" path="res://scenes/Player/Player.tscn" id="2_aojgc"]
+[ext_resource type="Script" path="res://scenes/Game/game.gd" id="1_611l7"]
+[ext_resource type="PackedScene" uid="uid://d367qor2xap" path="res://scenes/Map/map.tscn" id="2_y6smp"]
 
 [node name="Game" type="Node2D"]
-script = ExtResource("1_6lyfi")
+script = ExtResource("1_611l7")
 
-[node name="Camera" type="Camera2D" parent="."]
-visible = false
-
-[node name="Map" parent="." instance=ExtResource("1_nraxb")]
-
-[node name="Player" parent="." instance=ExtResource("2_aojgc")]
-position = Vector2(551, 349)
+[node name="Map" parent="." instance=ExtResource("2_y6smp")]
