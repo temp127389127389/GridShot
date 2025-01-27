@@ -1,7 +1,5 @@
 extends CharacterBody2D
 
-var id = 0
-
 const movement_speed      = Config.player.movement_speed
 const movement_halt_speed = Config.player.movement_halt_speed
 const rotation_speed      = Config.player.rotation_speed
@@ -13,11 +11,16 @@ var rotation_velocity = 0
 @export var ads_factor : float = 0
 @onready var ads_anim_player = $AnimationPlayer
 
-func _ready():
-	if id == 0:
-		add_child(Camera2D.new())
+func _enter_tree():
+	# ensures this instance's nodes' attributes cant be changed by other game instances
+	set_multiplayer_authority(name.to_int())
+	
+	$Label.text = str(get_multiplayer_authority())
 
 func _input(event):
+	if not is_multiplayer_authority():
+		return
+	
 	if event.is_action_pressed("Arrow up"):
 		ads_anim_player.play("to ads")
 	
@@ -25,29 +28,21 @@ func _input(event):
 		ads_anim_player.play_backwards("to ads")
 
 func _physics_process(delta):
-	print(ads_factor)
+	if not is_multiplayer_authority():
+		move_and_slide()
+		return
 	
 	# if the sum of the input strength of W and S isnt 0: set x velocity to movement speed in the appropriate direction
 	# otherwise: decrease x velocity
 	# the movement_halt_speed is multiplied by delta to compensate for fps irregularites.
 	#   movement_speed isnt multiplied by delta since its a constant velocity and thus not affected by fps
-	var y_direction = Input.get_axis("W", "S")
-	if y_direction: velocity.y = movement_speed * y_direction
-	else:           velocity.y = move_toward(velocity.y, 0, movement_halt_speed * delta)
+	var movement_vector = Input.get_vector("A", "D", "W", "S")
+	if movement_vector.x: velocity.x = movement_speed * movement_vector.x
+	else:                 velocity.x = move_toward(velocity.x, 0, movement_halt_speed * delta)
 	
 	# the the same as above but with the y axis
-	var x_direction = Input.get_axis("A", "D")
-	if x_direction: velocity.x = movement_speed * x_direction
-	else:           velocity.x = move_toward(velocity.x, 0, movement_halt_speed * delta)
-	
-	# normalize the velocity vector2 to prevent greater movement speed while walking diagonally
-	# only normalize if the velocity increased this frame. otherwise movement_halt_speed wouldnt work
-	# KNWON ISSUE:
-	#     the gradual decline in y velocity isnt smooth when holding W xor S
-	#     using AND in the below if statement wouldnt give the desired result
-	#     this issue wont be fixed since the effort would be greater than the benefit
-	if y_direction or x_direction:
-		velocity = velocity.normalized() * movement_speed
+	if movement_vector.y: velocity.y = movement_speed * movement_vector.y
+	else:                 velocity.y = move_toward(velocity.y, 0, movement_halt_speed * delta)
 	
 	move_and_slide()
 	

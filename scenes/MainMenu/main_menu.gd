@@ -1,6 +1,22 @@
 extends Control
 
-func _on_start_button_pressed():
+func _ready():
+	Network.connection_failed.connect(_connection_failed)
+	Network.connected_to_server.connect(_connection_successful)
+
+func _on_host_button_pressed():
+	Network.host_session()
+	Globals.start_game()
+
+func _on_join_button_pressed():
+	$ConnectionStatusColorRect.color = Color.YELLOW
+	Network.join_session($IPLineEdit.text)
+
+func _connection_failed():
+	$ConnectionStatusColorRect.color = Color.RED
+
+func _connection_successful():
+	$ConnectionStatusColorRect.color = Color.GREEN
 	Globals.start_game()
 
 func _on_quit_button_pressed():

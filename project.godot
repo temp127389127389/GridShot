@@ -14,6 +14,7 @@ config/name="GridShot"
 config/tags=PackedStringArray("school")
 run/main_scene="res://main.tscn"
 config/features=PackedStringArray("4.3", "GL Compatibility")
+run/max_fps=60
 config/icon="res://icon.svg"
 boot_splash/minimum_display_time=2000
 
@@ -21,6 +22,7 @@ boot_splash/minimum_display_time=2000
 
 Globals="*res://global scripts/globals.gd"
 Config="*res://global scripts/config.gd"
+Network="*res://global scripts/network.gd"
 
 [display]
 
@@ -76,6 +78,11 @@ D={
 "Arrow up"={
 "deadzone": 0.5,
 "events": [Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":-1,"window_id":0,"alt_pressed":false,"shift_pressed":false,"ctrl_pressed":false,"meta_pressed":false,"pressed":false,"keycode":0,"physical_keycode":4194320,"key_label":0,"unicode":0,"location":0,"echo":false,"script":null)
+]
+}
+E={
+"deadzone": 0.5,
+"events": [Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":-1,"window_id":0,"alt_pressed":false,"shift_pressed":false,"ctrl_pressed":false,"meta_pressed":false,"pressed":false,"keycode":0,"physical_keycode":69,"key_label":0,"unicode":101,"location":0,"echo":false,"script":null)
 ]
 }
 

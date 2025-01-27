@@ -6,4 +6,8 @@
 [node name="Game" type="Node2D"]
 script = ExtResource("1_611l7")
 
+[node name="MultiplayerSpawner" type="MultiplayerSpawner" parent="."]
+_spawnable_scenes = PackedStringArray("res://scenes/Player/player.tscn")
+spawn_path = NodePath("..")
+
 [node name="Map" parent="." instance=ExtResource("2_y6smp")]

@@ -1,6 +1,9 @@
 extends Node
 
 
+class LAN:
+	const port = 59803
+
 class player:
 	const movement_speed = 200       # constant velocity
 	const movement_halt_speed = 2000 # -velocity/second

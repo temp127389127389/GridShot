@@ -7,7 +7,14 @@ var Game_scene = preload("res://scenes/Game/game.tscn")
 
 
 func _ready():
-	get_window().set_mode(Window.MODE_FULLSCREEN)
+	#get_window().set_mode(Window.MODE_FULLSCREEN)
+	
+	# debug
+	multiplayer.connected_to_server.connect(print.bind("connected to server"))
+	multiplayer.connection_failed.connect(print.bind("connection failed"))
+	multiplayer.server_disconnected.connect(print.bind("server disconnect"))
+	multiplayer.peer_connected.connect(print.bind("peer connected"))
+	multiplayer.peer_disconnected.connect(print.bind("peer disconnected"))
 
 func _input(event):
 	if event.is_action_pressed("Esc"):
