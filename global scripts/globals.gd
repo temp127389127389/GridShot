@@ -23,7 +23,7 @@ func _input(event):
 	
 	# debug
 	if Input.is_key_pressed(KEY_CTRL) and Input.is_key_label_pressed(KEY_W):
-		quit_game()
+		quit_program()
 
 
 
@@ -31,5 +31,9 @@ func start_game():
 	main_node.get_node("MainMenu").queue_free()
 	main_node.add_child(Game_scene.instantiate())
 
-func quit_game():
+func exit_game():
+	main_node.get_node("Game").queue_free()
+	main_node.add_child(MainMenu_scene.instantiate())
+
+func quit_program():
 	get_tree().quit()

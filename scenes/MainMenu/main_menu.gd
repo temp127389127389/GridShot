@@ -12,6 +12,9 @@ func _on_join_button_pressed():
 	$ConnectionStatusColorRect.color = Color.YELLOW
 	Network.join_session($IPLineEdit.text)
 
+func _on_ip_line_edit_text_submitted(_new_text):
+	_on_join_button_pressed()
+
 func _connection_failed():
 	$ConnectionStatusColorRect.color = Color.RED
 
@@ -20,4 +23,4 @@ func _connection_successful():
 	Globals.start_game()
 
 func _on_quit_button_pressed():
-	Globals.quit_game()
+	Globals.quit_program()

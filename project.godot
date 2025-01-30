@@ -23,6 +23,7 @@ boot_splash/minimum_display_time=2000
 Globals="*res://global scripts/globals.gd"
 Config="*res://global scripts/config.gd"
 Network="*res://global scripts/network.gd"
+Naming="*res://global scripts/naming_conventions.gd"
 
 [display]
 

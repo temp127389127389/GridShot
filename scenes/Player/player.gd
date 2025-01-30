@@ -1,6 +1,9 @@
 extends CharacterBody2D
 
+var id : int
+
 const movement_speed      = Config.player.movement_speed
+const movement_ads_speed  = Config.player.movement_ads_speed
 const movement_halt_speed = Config.player.movement_halt_speed
 const rotation_speed      = Config.player.rotation_speed
 const rotation_ads_speed  = Config.player.rotation_ads_speed
@@ -13,9 +16,17 @@ var rotation_velocity = 0
 
 func _enter_tree():
 	# ensures this instance's nodes' attributes cant be changed by other game instances
-	set_multiplayer_authority(name.to_int())
+	id = Naming.from_player_name(name)
+	set_multiplayer_authority(id)
 	
+	# debug
 	$Label.text = str(get_multiplayer_authority())
+
+func _ready():
+	# all player instances in all game instances have a dedicated Camera2D
+	# the below code ensures the camera of each player is prioritized in its respective game instance
+	if is_multiplayer_authority():
+		$Camera2D.make_current()
 
 func _input(event):
 	if not is_multiplayer_authority():
@@ -37,11 +48,11 @@ func _physics_process(delta):
 	# the movement_halt_speed is multiplied by delta to compensate for fps irregularites.
 	#   movement_speed isnt multiplied by delta since its a constant velocity and thus not affected by fps
 	var movement_vector = Input.get_vector("A", "D", "W", "S")
-	if movement_vector.x: velocity.x = movement_speed * movement_vector.x
+	if movement_vector.x: velocity.x = get_current_movement_speed() * movement_vector.x
 	else:                 velocity.x = move_toward(velocity.x, 0, movement_halt_speed * delta)
 	
 	# the the same as above but with the y axis
-	if movement_vector.y: velocity.y = movement_speed * movement_vector.y
+	if movement_vector.y: velocity.y = get_current_movement_speed() * movement_vector.y
 	else:                 velocity.y = move_toward(velocity.y, 0, movement_halt_speed * delta)
 	
 	move_and_slide()
@@ -54,9 +65,17 @@ func _physics_process(delta):
 	rotation += rotation_velocity * delta
 
 
+func get_current_movement_speed() -> float:
+	# the current movement speed is dependent on ads_factor, which is
+	# dependent on the to_ads animation progress
+	
+	var movement_speed_delta = movement_speed - movement_ads_speed
+	var current_speed = movement_speed - movement_speed_delta * ads_factor
+	
+	return current_speed
+
 func get_current_rotation_speed() -> float:
-	# the current rotation speed is dependent on ads_state and ads_factor
-	# ads_factor is dependent on the to_ads animation progress
+	# the exact same as get_current_movement_speed, except for rotation speed
 	
 	var rotation_speed_delta = rotation_speed - rotation_ads_speed
 	var current_speed = rotation_speed - rotation_speed_delta * ads_factor
