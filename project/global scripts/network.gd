@@ -1,6 +1,7 @@
 extends Node
 
-var peer = ENetMultiplayerPeer.new()
+#var peer = ENetMultiplayerPeer.new()
+var peer = WebSocketMultiplayerPeer.new()
 
 # host signals
 signal peer_connected(id : int)
@@ -27,12 +28,14 @@ func host_session():
 	peer.create_server(Config.LAN.port)
 	multiplayer.multiplayer_peer = peer
 
-func join_session(ip_address : String):
+func join_session(ip_address : String, port : String):
 	if not ip_address.is_valid_ip_address():
 		connection_failed.emit()
 		return
 	
-	var err = peer.create_client(ip_address, Config.LAN.port)
+	#var err = peer.create_client(ip_address, Config.LAN.port)
+	#var err = peer.create_client("ws://localhost:" + str(Config.LAN.port))
+	var err = peer.create_client(ip_address + ":" + port)
 	if err != OK:
 		connection_failed.emit()
 		return

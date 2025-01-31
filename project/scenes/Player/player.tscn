@@ -146,7 +146,7 @@ _data = {
 }
 
 [sub_resource type="LabelSettings" id="LabelSettings_ge3xo"]
-font_size = 76
+font_size = 21
 font_color = Color(1, 0, 0, 1)
 
 [sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_3oy5e"]
@@ -191,8 +191,9 @@ libraries = {
 autoplay = "RESET"
 
 [node name="Label" type="Label" parent="."]
+offset_top = -253.0
 offset_right = 40.0
-offset_bottom = 23.0
+offset_bottom = -223.0
 text = "0"
 label_settings = SubResource("LabelSettings_ge3xo")
 

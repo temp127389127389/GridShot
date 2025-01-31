@@ -20,7 +20,7 @@ func _enter_tree():
 	set_multiplayer_authority(id)
 	
 	# debug
-	$Label.text = str(get_multiplayer_authority())
+	$Label.text = str(get_multiplayer_authority()) + "\n" + "\n".join(IP.get_local_addresses())
 
 func _ready():
 	# all player instances in all game instances have a dedicated Camera2D

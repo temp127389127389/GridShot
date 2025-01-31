@@ -3,6 +3,8 @@ extends Control
 func _ready():
 	Network.connection_failed.connect(_connection_failed)
 	Network.connected_to_server.connect(_connection_successful)
+	
+	$PortLineEdit.text = str(Config.LAN.port)
 
 func _on_host_button_pressed():
 	Network.host_session()
@@ -10,7 +12,7 @@ func _on_host_button_pressed():
 
 func _on_join_button_pressed():
 	$ConnectionStatusColorRect.color = Color.YELLOW
-	Network.join_session($IPLineEdit.text)
+	Network.join_session($IPLineEdit.text, $PortLineEdit.text)
 
 func _on_ip_line_edit_text_submitted(_new_text):
 	_on_join_button_pressed()

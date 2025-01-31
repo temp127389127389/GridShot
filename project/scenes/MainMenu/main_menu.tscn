@@ -39,11 +39,19 @@ offset_right = 176.0
 offset_bottom = 308.0
 placeholder_text = "IPv4 here"
 
+[node name="PortLineEdit" type="LineEdit" parent="."]
+layout_mode = 0
+offset_left = 194.0
+offset_top = 255.0
+offset_right = 296.0
+offset_bottom = 308.0
+placeholder_text = "Port"
+
 [node name="JoinButton" type="Button" parent="."]
 layout_mode = 1
-offset_left = 190.0
+offset_left = 319.0
 offset_top = 255.0
-offset_right = 326.0
+offset_right = 455.0
 offset_bottom = 315.0
 focus_mode = 0
 theme = ExtResource("2_lf335")
@@ -51,9 +59,9 @@ text = "Join"
 
 [node name="ConnectionStatusColorRect" type="ColorRect" parent="."]
 layout_mode = 0
-offset_left = 340.0
+offset_left = 469.0
 offset_top = 255.0
-offset_right = 380.0
+offset_right = 509.0
 offset_bottom = 295.0
 color = Color(1, 0, 0, 1)
 
