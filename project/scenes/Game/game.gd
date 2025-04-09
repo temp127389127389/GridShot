@@ -2,22 +2,29 @@ extends Node2D
 
 var Player_scene = preload("res://scenes/Player/player.tscn")
 
-func _ready():
+func _on_multiplayer_ready():
 	if multiplayer.is_server():
 		add_player()
-		Network.peer_connected.connect(add_player)
-		Network.peer_disconnected.connect(remove_player)
+		
+		var multiplayer_node : WebRTCLobbyHost = Network.multiplayer_node
+		multiplayer_node.PeerConnected.connect(add_player)
+		multiplayer_node.PeerDisconnected.connect(remove_player)
 	
 	else:
-		Network.server_disconnected.connect(server_disconnected)
+		var multiplayer_node : WebRTCPlayerClient = Network.multiplayer_node
+		multiplayer_node.LobbyServerDisconnected.connect(server_disconnected)
 
-func add_player(id = 1):
+func add_player(peer_id : int = 1):
 	var new_player = Player_scene.instantiate()
-	new_player.name = Naming.to_player_name(id)
+	new_player.name = str(peer_id)
+	
+	if peer_id == 1:
+		new_player.position.x += 200
+	
 	add_child(new_player)
 
-func remove_player(id):
-	get_node(Naming.to_player_name(id)).queue_free()
+func remove_player(peer_id : int):
+	get_node(str(peer_id)).queue_free()
 
 func server_disconnected():
 	Globals.exit_game()

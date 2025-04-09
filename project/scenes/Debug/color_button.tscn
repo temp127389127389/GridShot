@@ -1,0 +1,14 @@
+[gd_scene load_steps=2 format=3 uid="uid://b6c2s4etpv7xf"]
+
+[ext_resource type="Script" uid="uid://b1617kv4l13l1" path="res://scenes/Debug/color_button.gd" id="1_50oeb"]
+
+[node name="ColorButton" type="Button"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+text = "Color button"
+script = ExtResource("1_50oeb")
+
+[connection signal="pressed" from="." to="." method="_on_pressed"]

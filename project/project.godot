@@ -13,17 +13,16 @@ config_version=5
 config/name="GridShot"
 config/tags=PackedStringArray("school")
 run/main_scene="res://main.tscn"
-config/features=PackedStringArray("4.3", "GL Compatibility")
+config/features=PackedStringArray("4.4", "GL Compatibility")
 run/max_fps=60
 config/icon="res://icon.svg"
 boot_splash/minimum_display_time=2000
 
 [autoload]
 
-Globals="*res://global scripts/globals.gd"
 Config="*res://global scripts/config.gd"
 Network="*res://global scripts/network.gd"
-Naming="*res://global scripts/naming_conventions.gd"
+Globals="*res://global scripts/globals.gd"
 
 [display]
 
@@ -33,7 +32,7 @@ window/vsync/vsync_mode=0
 
 [editor_plugins]
 
-enabled=PackedStringArray("res://addons/dev_time_tracker/plugin.cfg")
+enabled=PackedStringArray("res://addons/dev_time_tracker/plugin.cfg", "res://addons/webrtc-multiplayer/plugin.cfg")
 
 [filesystem]
 
@@ -84,6 +83,11 @@ D={
 E={
 "deadzone": 0.5,
 "events": [Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":-1,"window_id":0,"alt_pressed":false,"shift_pressed":false,"ctrl_pressed":false,"meta_pressed":false,"pressed":false,"keycode":0,"physical_keycode":69,"key_label":0,"unicode":101,"location":0,"echo":false,"script":null)
+]
+}
+"Ctrl + W"={
+"deadzone": 0.2,
+"events": [Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":-1,"window_id":0,"alt_pressed":false,"shift_pressed":false,"ctrl_pressed":true,"meta_pressed":false,"pressed":false,"keycode":0,"physical_keycode":87,"key_label":0,"unicode":0,"location":0,"echo":false,"script":null)
 ]
 }
 

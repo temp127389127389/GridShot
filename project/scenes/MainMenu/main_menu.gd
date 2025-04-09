@@ -1,28 +1,14 @@
 extends Control
 
-func _ready():
-	Network.connection_failed.connect(_connection_failed)
-	Network.connected_to_server.connect(_connection_successful)
-	
-	$PortLineEdit.text = str(Config.LAN.port)
 
 func _on_host_button_pressed():
-	Network.host_session()
-	Globals.start_game()
+	Globals.start_as_lobby_host($LobbyNameLineEdit.text)
 
-func _on_join_button_pressed():
-	$ConnectionStatusColorRect.color = Color.YELLOW
-	Network.join_session($IPLineEdit.text, $PortLineEdit.text)
+func _on_player_button_pressed():
+	Globals.start_as_player_client()
 
-func _on_ip_line_edit_text_submitted(_new_text):
-	_on_join_button_pressed()
-
-func _connection_failed():
-	$ConnectionStatusColorRect.color = Color.RED
-
-func _connection_successful():
-	$ConnectionStatusColorRect.color = Color.GREEN
-	Globals.start_game()
+func _on_player_join_button_pressed():
+	Globals.player_client_join_lobby($LobbyIdLineEdit.text)
 
 func _on_quit_button_pressed():
 	Globals.quit_program()

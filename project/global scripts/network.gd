@@ -1,43 +1,24 @@
 extends Node
 
-#var peer = ENetMultiplayerPeer.new()
-var peer = WebSocketMultiplayerPeer.new()
+var multiplayer_node
 
-# host signals
-signal peer_connected(id : int)
-signal peer_disconnected(id : int)
-
-# client signals
-signal connected_to_server
-signal connection_failed
-signal server_disconnected
-
-
-#func get_mlt():
-	#return get_tree().get_multiplayer("/root/main")
-
-func _ready():
-	# inherit the multiplayers signals (in quite an ugly fasion)
-	multiplayer.peer_connected.connect(peer_connected.emit)
-	multiplayer.peer_disconnected.connect(peer_disconnected.emit)
-	multiplayer.connected_to_server.connect(connected_to_server.emit)
-	multiplayer.connection_failed.connect(connection_failed.emit)
-	multiplayer.server_disconnected.connect(server_disconnected.emit)
-
-func host_session():
-	peer.create_server(Config.LAN.port)
-	multiplayer.multiplayer_peer = peer
-
-func join_session(ip_address : String, port : String):
-	if not ip_address.is_valid_ip_address():
-		connection_failed.emit()
-		return
+func init_host_node(lobby_name : String):
+	multiplayer_node = WebRTCLobbyHost.new(
+		Config.network.signaling_server_url,
+		Config.network.lobby_size,
+		true,  # accepting new players
+		lobby_name,
+		false, # password enabled
+		"",    # password
+		Config.debug.network_logs_verbose
+	)
 	
-	#var err = peer.create_client(ip_address, Config.LAN.port)
-	#var err = peer.create_client("ws://localhost:" + str(Config.LAN.port))
-	var err = peer.create_client(ip_address + ":" + port)
-	if err != OK:
-		connection_failed.emit()
-		return
+	return multiplayer_node
+
+func init_player_node():
+	multiplayer_node = WebRTCPlayerClient.new(
+		Config.network.signaling_server_url,
+		Config.debug.network_logs_verbose
+	)
 	
-	multiplayer.multiplayer_peer = peer
+	return multiplayer_node

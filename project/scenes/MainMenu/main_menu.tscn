@@ -1,6 +1,6 @@
 [gd_scene load_steps=3 format=3 uid="uid://cq7li4lfjo0ew"]
 
-[ext_resource type="Script" path="res://scenes/MainMenu/main_menu.gd" id="1_f6mx3"]
+[ext_resource type="Script" uid="uid://btaqlnfd4w4rh" path="res://scenes/MainMenu/main_menu.gd" id="1_f6mx3"]
 [ext_resource type="Theme" uid="uid://bvug23w70yorr" path="res://assets/big_theme.tres" id="2_lf335"]
 
 [node name="MainMenu" type="Control"]
@@ -21,49 +21,46 @@ grow_horizontal = 2
 grow_vertical = 2
 color = Color(0.259294, 0.259294, 0.259294, 1)
 
-[node name="HostButton" type="Button" parent="."]
-layout_mode = 1
+[node name="LobbyNameLineEdit" type="LineEdit" parent="."]
+layout_mode = 0
 offset_left = 40.0
-offset_top = 73.0
+offset_top = 27.0
 offset_right = 340.0
-offset_bottom = 133.0
-focus_mode = 0
-theme = ExtResource("2_lf335")
+offset_bottom = 58.0
+placeholder_text = "Lobby name"
+
+[node name="HostButton" type="Button" parent="."]
+layout_mode = 0
+offset_left = 40.0
+offset_top = 75.0
+offset_right = 340.0
+offset_bottom = 135.0
 text = "Host"
 
-[node name="IPLineEdit" type="LineEdit" parent="."]
+[node name="PlayerButton" type="Button" parent="."]
 layout_mode = 0
-offset_left = 40.0
-offset_top = 255.0
-offset_right = 176.0
-offset_bottom = 308.0
-placeholder_text = "IPv4 here"
+offset_left = 384.0
+offset_top = 27.0
+offset_right = 684.0
+offset_bottom = 87.0
+text = "Player"
 
-[node name="PortLineEdit" type="LineEdit" parent="."]
+[node name="LobbyIdLineEdit" type="LineEdit" parent="."]
 layout_mode = 0
-offset_left = 194.0
-offset_top = 255.0
-offset_right = 296.0
-offset_bottom = 308.0
-placeholder_text = "Port"
+offset_left = 384.0
+offset_top = 99.0
+offset_right = 684.0
+offset_bottom = 130.0
+placeholder_text = "Join lobby id"
 
-[node name="JoinButton" type="Button" parent="."]
-layout_mode = 1
-offset_left = 319.0
-offset_top = 255.0
-offset_right = 455.0
-offset_bottom = 315.0
-focus_mode = 0
-theme = ExtResource("2_lf335")
-text = "Join"
-
-[node name="ConnectionStatusColorRect" type="ColorRect" parent="."]
+[node name="PlayerJoinButton" type="Button" parent="."]
 layout_mode = 0
-offset_left = 469.0
-offset_top = 255.0
-offset_right = 509.0
-offset_bottom = 295.0
-color = Color(1, 0, 0, 1)
+offset_left = 384.0
+offset_top = 147.0
+offset_right = 684.0
+offset_bottom = 207.0
+disabled = true
+text = "Player join"
 
 [node name="QuitButton" type="Button" parent="."]
 layout_mode = 1
@@ -76,6 +73,6 @@ theme = ExtResource("2_lf335")
 text = "Quit"
 
 [connection signal="pressed" from="HostButton" to="." method="_on_host_button_pressed"]
-[connection signal="text_submitted" from="IPLineEdit" to="." method="_on_ip_line_edit_text_submitted"]
-[connection signal="pressed" from="JoinButton" to="." method="_on_join_button_pressed"]
+[connection signal="pressed" from="PlayerButton" to="." method="_on_player_button_pressed"]
+[connection signal="pressed" from="PlayerJoinButton" to="." method="_on_player_join_button_pressed"]
 [connection signal="pressed" from="QuitButton" to="." method="_on_quit_button_pressed"]

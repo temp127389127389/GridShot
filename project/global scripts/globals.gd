@@ -10,11 +10,11 @@ func _ready():
 	#get_window().set_mode(Window.MODE_FULLSCREEN)
 	
 	# debug
-	multiplayer.connected_to_server.connect(print.bind("connected to server"))
-	multiplayer.connection_failed.connect(print.bind("connection failed"))
-	multiplayer.server_disconnected.connect(print.bind("server disconnect"))
-	multiplayer.peer_connected.connect(print.bind("peer connected"))
-	multiplayer.peer_disconnected.connect(print.bind("peer disconnected"))
+	#multiplayer.connected_to_server.connect(print.bind("connected to server"))
+	#multiplayer.connection_failed.connect(print.bind("connection failed"))
+	#multiplayer.server_disconnected.connect(print.bind("server disconnect"))
+	#multiplayer.peer_connected.connect(print.bind("peer connected"))
+	#multiplayer.peer_disconnected.connect(print.bind("peer disconnected"))
 	
 	disperse_windows.call_deferred()
 
@@ -37,13 +37,49 @@ func _input(event):
 		get_window().set_mode(Window.MODE_WINDOWED)
 	
 	# debug
-	if Input.is_key_pressed(KEY_CTRL) and Input.is_key_label_pressed(KEY_W):
+	if event.is_action_pressed("Ctrl + W"):
 		quit_program()
 
 
 
-func start_game():
+
+func start_as_lobby_host(lobby_name : String):
+	# init the multiplayer node
+	var multiplayer_node : WebRTCLobbyHost = Network.init_host_node(lobby_name)
+	main_node.add_child(multiplayer_node)
+	
+	# connect log signal to print
+	if Config.debug.print_network_logs:
+		multiplayer_node.Log.connect(print)
+	
 	main_node.get_node("MainMenu").queue_free()
+	
+	load_game_scene()
+	multiplayer_node.LobbyReady.connect(main_node.get_node("Game")._on_multiplayer_ready)
+
+func start_as_player_client():
+	# init the multiplayer node
+	var multiplayer_node : WebRTCPlayerClient = Network.init_player_node()
+	main_node.add_child(multiplayer_node)
+	
+	# debug - enables the join button
+	multiplayer_node.ConnectedToSignalingServer.connect(
+		func(): main_node.get_node("MainMenu/PlayerJoinButton").disabled = false,
+		CONNECT_ONE_SHOT
+	)
+	
+	# connect log signal to print
+	if Config.debug.print_network_logs:
+		multiplayer_node.Log.connect(print)
+
+func player_client_join_lobby(lobby_id : String):
+	var multiplayer_node : WebRTCPlayerClient = main_node.get_node("WebRTCPlayerClient")
+	multiplayer_node.join_lobby(lobby_id)
+	
+	main_node.get_node("MainMenu").queue_free()
+	load_game_scene()
+
+func load_game_scene():
 	main_node.add_child(Game_scene.instantiate())
 
 func exit_game():

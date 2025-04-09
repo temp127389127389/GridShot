@@ -16,7 +16,7 @@ var rotation_velocity = 0
 
 func _enter_tree():
 	# ensures this instance's nodes' attributes cant be changed by other game instances
-	id = Naming.from_player_name(name)
+	id = int(name)
 	set_multiplayer_authority(id)
 	
 	# debug
@@ -40,7 +40,7 @@ func _input(event):
 
 func _physics_process(delta):
 	if not is_multiplayer_authority():
-		move_and_slide()
+		#move_and_slide()
 		return
 	
 	# if the sum of the input strength of W and S isnt 0: set x velocity to movement speed in the appropriate direction
