@@ -3,7 +3,10 @@ extends Node2D
 var Player_scene = preload("res://scenes/Player/player.tscn")
 
 func _on_multiplayer_ready():
-	if multiplayer.is_server():
+	if not Config.debug.multiplayer_enabled:
+		add_player()
+	
+	elif multiplayer.is_server():
 		add_player()
 		
 		var multiplayer_node : WebRTCLobbyHost = Network.multiplayer_node
@@ -17,9 +20,6 @@ func _on_multiplayer_ready():
 func add_player(peer_id : int = 1):
 	var new_player = Player_scene.instantiate()
 	new_player.name = str(peer_id)
-	
-	if peer_id == 1:
-		new_player.position.x += 200
 	
 	add_child(new_player)
 

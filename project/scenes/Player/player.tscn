@@ -162,7 +162,6 @@ properties/2/replication_mode = 1
 
 [node name="Player" type="CharacterBody2D"]
 collision_layer = 2
-collision_mask = 3
 motion_mode = 1
 floor_stop_on_slope = false
 floor_block_on_wall = false
@@ -192,6 +191,7 @@ libraries = {
 autoplay = "RESET"
 
 [node name="Label" type="Label" parent="."]
+visible = false
 offset_top = -253.0
 offset_right = 40.0
 offset_bottom = -223.0
@@ -200,3 +200,15 @@ label_settings = SubResource("LabelSettings_ge3xo")
 
 [node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="."]
 replication_config = SubResource("SceneReplicationConfig_3oy5e")
+
+[node name="PlayerRepulsionArea2D" type="Area2D" parent="."]
+collision_layer = 0
+collision_mask = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="PlayerRepulsionArea2D"]
+shape = SubResource("CircleShape2D_3r6ug")
+
+[node name="WeaponFireCooldownTimer" type="Timer" parent="."]
+wait_time = 0.2
+one_shot = true
+autostart = true
