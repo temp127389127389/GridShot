@@ -161,6 +161,7 @@ properties/2/spawn = true
 properties/2/replication_mode = 1
 
 [node name="Player" type="CharacterBody2D"]
+light_mask = 2
 collision_layer = 2
 motion_mode = 1
 floor_stop_on_slope = false

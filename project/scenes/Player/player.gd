@@ -2,6 +2,12 @@ extends CharacterBody2D
 
 @export var id : int
 
+var weapon:
+	set(new_value):
+		weapon = new_value
+		$WeaponFireCooldownTimer.wait_time = 1.0 / new_value.firing_speed
+		$WeaponFireCooldownTimer.start()
+
 const movement_speed      = Config.player.movement_speed
 const movement_ads_speed  = Config.player.movement_ads_speed
 const movement_halt_speed = Config.player.movement_halt_speed
@@ -28,7 +34,8 @@ func _ready():
 	if is_multiplayer_authority():
 		$Camera2D.make_current()
 	
-	$WeaponFireCooldownTimer.wait_time = Config.player.firing_speed
+	# debug
+	weapon = AssaultRifle.new()
 
 func _input(event):
 	if not is_multiplayer_authority():
@@ -40,8 +47,9 @@ func _input(event):
 	if event.is_action_released("Arrow up"):
 		ads_anim_player.play_backwards("to ads")
 	
-	if event.is_action_pressed("E"):
-		Globals.rpc_test.rpc_id(1, self, multiplayer.get_unique_id())
+	if event.is_action_pressed("1"): weapon = AssaultRifle.new()
+	if event.is_action_pressed("2"): weapon = SubMachineGun.new()
+	if event.is_action_pressed("3"): weapon = Shotgun.new()
 
 func _physics_process(delta):
 	if not is_multiplayer_authority():
@@ -112,8 +120,5 @@ func fire_weapon():
 	var timer : Timer = $WeaponFireCooldownTimer
 	
 	if timer.time_left == 0:
-		# the below line calls the function `spawn_bullet(name, rotation, position)` on
-		#   the peer with peer id 1, aka the lobby host. this is needed since adding children
-		#   from any peer which isnt the lobby host is wonky and likely to fail
-		Globals.spawn_bullet.rpc_id(1, name, rotation, position)
+		weapon.fire(name, ads_factor, rotation, position)
 		timer.start()
