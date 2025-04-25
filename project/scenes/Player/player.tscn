@@ -1,6 +1,6 @@
 [gd_scene load_steps=20 format=3 uid="uid://ktbstc3wotu"]
 
-[ext_resource type="Script" uid="uid://b6fvr1jvqicrm" path="res://scenes/Player/player.gd" id="1_7fjr5"]
+[ext_resource type="Script" uid="uid://77kuxt1qq68i" path="res://scenes/Player/player.gd" id="1_1kbk7"]
 [ext_resource type="Texture2D" uid="uid://b1yao3pavjic2" path="res://assets/tilesets/player.png" id="1_g1ksp"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_xyikk"]
@@ -160,13 +160,15 @@ properties/2/path = NodePath("DirectionMarker:points")
 properties/2/spawn = true
 properties/2/replication_mode = 1
 
-[node name="Player" type="CharacterBody2D"]
+[node name="Player" type="CharacterBody2D" groups=["players"]]
 light_mask = 2
+z_index = 2
+z_as_relative = false
 collision_layer = 2
 motion_mode = 1
 floor_stop_on_slope = false
 floor_block_on_wall = false
-script = ExtResource("1_7fjr5")
+script = ExtResource("1_1kbk7")
 metadata/_edit_horizontal_guides_ = [-599.0]
 
 [node name="Camera2D" type="Camera2D" parent="."]
@@ -179,6 +181,8 @@ autoplay = "default"
 shape = SubResource("CircleShape2D_3r6ug")
 
 [node name="DirectionMarker" type="Line2D" parent="."]
+z_index = 3
+z_as_relative = false
 points = PackedVector2Array(44, -21, 56, 0, 44, 21)
 width = 5.6
 joint_mode = 2
@@ -213,3 +217,6 @@ shape = SubResource("CircleShape2D_3r6ug")
 wait_time = 0.2
 one_shot = true
 autostart = true
+
+[node name="ThrowablePreviewRaycast" type="RayCast2D" parent="."]
+target_position = Vector2(50, 0)

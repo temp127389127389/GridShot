@@ -1,7 +1,5 @@
 extends Node2D
 
-var Player_scene = preload("res://scenes/Player/player.tscn")
-
 func _on_multiplayer_ready():
 	if not Config.debug.multiplayer_enabled:
 		add_player()
@@ -18,7 +16,7 @@ func _on_multiplayer_ready():
 		multiplayer_node.LobbyServerDisconnected.connect(server_disconnected)
 
 func add_player(peer_id : int = 1):
-	var new_player = Player_scene.instantiate()
+	var new_player = Globals.scenes.player.instantiate()
 	new_player.name = str(peer_id)
 	
 	add_child(new_player)

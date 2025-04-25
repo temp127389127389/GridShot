@@ -1,9 +1,10 @@
+extends Gun
 class_name Shotgun
-extends Weapon
 
 const base_spread = Config.weapons.shotgun_base_spread
 const ads_spread = Config.weapons.shotgun_ads_spread
 const firing_speed = Config.weapons.shotgun_firing_speed
+const projectile_type = "bullet"
 
 const fragment_count = Config.weapons.shotgun_fragment_count
 
@@ -18,4 +19,4 @@ func fire(player_name : String, current_ads_factor : float, rotation : float, po
 		# the below line calls the function `spawn_bullet(name, rotation, position)` on
 		#   the peer with peer id 1, aka the lobby host. this is needed since adding children
 		#   from any peer which isnt the lobby host is wonky and likely to fail
-		Globals.spawn_bullet.rpc_id(1, player_name, bullet_rotation, position)
+		Globals.spawn_projectile.rpc_id(1, projectile_type, player_name, bullet_rotation, position)
