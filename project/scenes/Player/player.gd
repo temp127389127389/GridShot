@@ -2,53 +2,91 @@ extends CharacterBody2D
 class_name Player
 
 @export var id : int
-
-var weapon:
+@export var team : int
+@export var color : Color: 
 	set(new_value):
-		if weapon != null:
-			weapon.delete()
+		color = new_value
+		$PlayerColor.color = color
+@export var hp : int
+
+var gun : Gun:
+	set(new_value):
+		if gun != null:
+			gun.delete()
 		
-		weapon = new_value
+		gun = new_value
+		in_hand = gun
 		
 		$WeaponFireCooldownTimer.wait_time = 1.0 / new_value.firing_speed
 		$WeaponFireCooldownTimer.start()
 
-const movement_speed      = Config.player.movement_speed
-const movement_ads_speed  = Config.player.movement_ads_speed
-const movement_halt_speed = Config.player.movement_halt_speed
-const rotation_speed      = Config.player.rotation_speed
-const rotation_ads_speed  = Config.player.rotation_ads_speed
-const rotation_halt_speed = Config.player.rotation_halt_speed
-const throw_distace       = Config.throwables.throw_distance
-const ads_throw_distace   = Config.throwables.ads_throw_distance
+var utils = []
+
+var in_hand:
+	set(new_value):
+		# the is_in_hand determines wehter throwable preview is visible
+		if in_hand is Throwable: in_hand.is_in_hand = false
+		in_hand = new_value
+		if in_hand is Throwable: in_hand.is_in_hand = true
+
+const movement_speed       = Config.player.movement_speed
+const movement_ads_speed   = Config.player.movement_ads_speed
+const movement_halt_speed  = Config.player.movement_halt_speed
+const rotation_speed       = Config.player.rotation_speed
+const rotation_ads_speed   = Config.player.rotation_ads_speed
+const rotation_halt_speed  = Config.player.rotation_halt_speed
+const throw_distace        = Config.throwables.throw_distance
+const ads_throw_distace    = Config.throwables.ads_throw_distance
+const plant_duration       = Config.game_bomb.plant_duration
+const diffuse_duration     = Config.game_bomb.diffuse_duration
+const max_hp               = Config.player.max_hp
 
 var rotation_velocity = 0
 
 @export var ads_factor : float = 0
 @onready var ads_anim_player = $AnimationPlayer
 
+@export var stun_factor : float = 0
+
+var inputs_enabled : bool = false
+
+var can_plant : bool = false
+var is_planting : bool = false
+var plant_start_time : float = 0
+var plant_progress : float = 0
+
+var can_diffuse : bool = false
+var is_diffusing : bool = false
+var diffuse_start_time : float = 0
+var diffuse_progress : float = 0
+
+
 func _enter_tree():
 	# ensures this instance's nodes' attributes cant be changed by other game instances
 	id = int(name)
 	set_multiplayer_authority(id)
-	
-	# debug
-	$Label.text = str(get_multiplayer_authority()) + "\n" + "\n".join(IP.get_local_addresses())
 
 func _ready():
-	# all player instances in all game instances have a dedicated Camera2D
-	# the below code ensures the camera of each player is prioritized in its respective game instance
 	if is_multiplayer_authority():
-		$Camera2D.make_current()
 		$DirectionMarker.z_index = 6
+		hp = max_hp
 	
+	# sets the length of the throwabled preview raycast
+	# its global rotation is based on player rotation, therefore it pointing to the right is correct
 	$ThrowablePreviewRaycast.target_position = Vector2.RIGHT * get_current_throw_distance()
-	
-	# debug
-	weapon = AssaultRifle.new()
 
 func _input(event):
-	if not is_multiplayer_authority():
+	if not is_multiplayer_authority() or not inputs_enabled:
+		return
+	
+	if event.is_action_pressed("E"):
+		if team == 0: start_planting()
+		else:         start_diffusing()
+		return
+	
+	elif event.is_action_released("E"):
+		if team == 0: stop_planting()
+		else:         stop_diffusing()
 		return
 	
 	if event.is_action_pressed("Arrow up"):
@@ -57,26 +95,34 @@ func _input(event):
 	if event.is_action_released("Arrow up"):
 		ads_anim_player.play_backwards("to ads")
 	
-	if event.is_action_pressed("1"): weapon = AssaultRifle.new()
-	if event.is_action_pressed("2"): weapon = SubMachineGun.new()
-	if event.is_action_pressed("3"): weapon = Shotgun.new()
-	if event.is_action_pressed("4"): weapon = Molotov.new(self)
-	if event.is_action_pressed("5"): weapon = FlashGrenade.new(self)
-	if event.is_action_pressed("6"): weapon = SmokeGrenade.new(self)
-	if event.is_action_pressed("7"): weapon = Tripwire.new(self)
+	if event.is_action_pressed("R"):
+		if in_hand is Gun:
+			in_hand.reload()
+	
+	if event.is_action_pressed("1"): in_hand = gun
+	if event.is_action_pressed("2"): if len(utils) >= 1: in_hand = utils[0]
+	if event.is_action_pressed("3"): if len(utils) >= 2: in_hand = utils[1]
+	if event.is_action_pressed("4"): if len(utils) == 3: in_hand = utils[2]
 
 func _physics_process(delta):
-	if not is_multiplayer_authority():
+	if not is_multiplayer_authority() or not inputs_enabled:
+		move_and_slide()
 		return
 	
-	if Input.is_action_pressed("Space"):
+	if is_planting:
+		progress_planting()
+	
+	elif is_diffusing:
+		progress_diffusing()
+	
+	elif Input.is_action_pressed("Space"):
 		fire_weapon()
 	
 	# if the sum of the input strength of W and S isnt 0: set x velocity to movement speed in the appropriate direction
 	# otherwise: decrease x velocity
 	# the movement_halt_speed is multiplied by delta to compensate for fps irregularites.
 	#   movement_speed isnt multiplied by delta since its a constant velocity and thus not affected by fps
-	var movement_vector = Input.get_vector("A", "D", "W", "S")
+	var movement_vector = Input.get_vector("A", "D", "W", "S") if not is_planting else Vector2.ZERO
 	if movement_vector.x: velocity.x = get_current_movement_speed() * movement_vector.x
 	else:                 velocity.x = move_toward(velocity.x, 0, movement_halt_speed * delta)
 	
@@ -107,24 +153,26 @@ func _physics_process(delta):
 		velocity += repulsion_vector_sum
 	
 	# handle rotation in the same way as movement
-	var rotation_direction = Input.get_axis("Arrow left", "Arrow right")
+	var rotation_direction = Input.get_axis("Arrow left", "Arrow right") if not is_planting else 0.0
 	if rotation_direction: rotation_velocity = get_current_rotation_speed() * rotation_direction
 	else:                  rotation_velocity = move_toward(rotation_velocity, 0, rotation_halt_speed * delta)
 	rotation += rotation_velocity * delta
 	
 	# update the throwable preview raycast if weapon is throwable
-	if weapon is Throwable:
+	if in_hand is Throwable:
 		$ThrowablePreviewRaycast.target_position = Vector2.RIGHT * get_current_throw_distance()
 	
 	move_and_slide()
 
 
+#region ads based stuff
 func get_current_movement_speed() -> float:
 	# the current movement speed is dependent on ads_factor, which is
 	#   dependent on the to_ads animation progress
 	
 	var movement_speed_delta = movement_speed - movement_ads_speed
 	var current_speed = movement_speed - movement_speed_delta * ads_factor
+	current_speed *= 1-stun_factor
 	
 	return current_speed
 
@@ -134,6 +182,7 @@ func get_current_rotation_speed() -> float:
 	
 	var rotation_speed_delta = rotation_speed - rotation_ads_speed
 	var current_speed = rotation_speed - rotation_speed_delta * ads_factor
+	current_speed = current_speed * (1 - stun_factor)
 	
 	return current_speed
 
@@ -143,13 +192,78 @@ func get_current_throw_distance() -> float:
 	
 	var throw_distance_delta = throw_distace - ads_throw_distace
 	var current_throw_distance = throw_distace - throw_distance_delta * ads_factor
+	current_throw_distance *= 1-stun_factor
 	
 	return current_throw_distance
-
+#endregion
 
 func fire_weapon():
 	var timer : Timer = $WeaponFireCooldownTimer
 	
 	if timer.time_left == 0:
-		weapon.fire(name, ads_factor, rotation, position)
+		in_hand.fire(name, ads_factor, rotation, position)
 		timer.start()
+
+func take_dmg(dmg : int):
+	hp = max(0, hp-dmg)
+	
+	if hp == 0:
+		inputs_enabled = false
+		modulate = Color("#999999")
+		$PlayerRepulsionArea2D/CollisionShape2D.set_deferred("disabled", true)
+		
+		Globals.check_win.rpc()
+
+#region planting
+func start_planting():
+	if can_plant and not Globals.game_node.game_bomb_planted:
+		is_planting = true
+		plant_start_time = Time.get_unix_time_from_system()
+		$DirectionMarker.visible = false
+		modulate = Color("#999999")
+
+func stop_planting():
+	is_planting = false
+	$DirectionMarker.visible = true
+	modulate = Color("#ffffff")
+
+func finish_planting():
+	if not Globals.game_node.game_bomb_planted:
+		Globals.game_bomb_planted.rpc(position)
+		Globals.game_node.game_bomb_planted = true
+	stop_planting()
+
+func progress_planting():
+	var current_time = Time.get_unix_time_from_system()
+	plant_progress = min(1, (current_time - plant_start_time)/plant_duration)
+	
+	if plant_progress == 1:
+		finish_planting()
+#endregion
+
+#region diffusing
+func start_diffusing():
+	if can_diffuse:
+		is_diffusing = true
+		diffuse_start_time = Time.get_unix_time_from_system()
+		$DirectionMarker.visible = false
+		modulate = Color("#999999")
+
+func stop_diffusing():
+	is_diffusing = false
+	$DirectionMarker.visible = true
+	modulate = Color("#ffffff")
+
+func finish_diffusing():
+	if not Globals.game_node.game_bomb_diffused:
+		Globals.game_bomb_diffused.rpc()
+		Globals.game_node.game_bomb_diffused = true
+	stop_diffusing()
+
+func progress_diffusing():
+	var current_time = Time.get_unix_time_from_system()
+	diffuse_progress = min(1, (current_time - diffuse_start_time)/diffuse_duration)
+	
+	if diffuse_progress == 1:
+		finish_diffusing()
+#endregion

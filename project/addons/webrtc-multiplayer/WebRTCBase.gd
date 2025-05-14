@@ -6,10 +6,25 @@ class_name WebRTC
 var signaling_server_url : String
 var log_debug : bool # write extra info to log if true
 
+var WebRTC_url_config = {
+	"iceServers": [{
+			"urls": [
+				"stun:relay1.expressturn.com:3478",
+				"stun:stun.l.google.com:19302"
+			]
+		},
+		{
+			"urls": [ "turn:relay1.expressturn.com:3478?transport=udp" ],
+			"username": "efFLEL8MC8D5N5P1XL",
+			"credential": "chHxbeNooOHKx2fC",
+		}
+	]
+}
+
 const SignalingServerAddress = -1
 
-const JoinRequestAnswerTimeout = 5 # s
-const WebRTCConnectionTimeout = 5 # s
+const JoinRequestAnswerTimeout = 10 # s
+const WebRTCConnectionTimeout = 10 # s
 
 const MinLobbySize = 1
 const MaxLobbySize = 128

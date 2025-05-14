@@ -2,6 +2,8 @@ extends ThrowableProjectile
 
 var is_exploding = false
 
+const flash_grenade_max_flash_distance = Config.throwables.flash_grenade_max_flash_distance
+
 func setup(source_ : Player, rotation_ : float, start_position_ : Vector2, throw_distance_ : float):
 	super.setup(source_, rotation_, start_position_, throw_distance_)
 	self.movement_speed = Config.throwables.movement_speed
@@ -36,7 +38,7 @@ func _on_explosion_peak():
 		add_child(raycast)
 		
 		raycast.force_raycast_update()
-		if not raycast.is_colliding():
+		if not raycast.is_colliding() and global_position.distance_to(player.global_position) < flash_grenade_max_flash_distance:
 			Globals.flash_peer.rpc_id(player.id)
 	
 	if is_multiplayer_authority():

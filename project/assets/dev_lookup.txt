@@ -52,13 +52,14 @@ brown_6 = "#a56243"
 
 
 z values:
-10 - ui
-9 - flash screen
+11 - ui
+10 - game bomb explosion
+9 - flash + stun screen
 8 - environment
 7 - explosion
 6 - own direction marker
 5 - smoke cloud
-4 - 
+4 - tripwire + game bomb
 3 - other's direction marker
 2 - player
 1 - bullets + throwable projectiles
@@ -71,16 +72,35 @@ TODO
  # setup smoke grenade + smoke cloud
  # smoke grenade + cloud multiplayer
  # do some soultion to a billion rpc funcs
- 3 improve weapon + throwables class scalability (reuse same code but with diff (...).rpc_id(1))
+ # improve weapon + throwables class scalability (reuse same code but with diff (...).rpc_id(1))
  # separate throwables weapons vs throwables projectiles
  # maybe do a base class for throwable projectiles movement
  # move the PackedScenes in globals to a dict
  # implement the z value list (remember disable z-relative)
 	 will fix the direction marker being visible during flash due to always on top
- - flash add a white indicator that the screen froze
- - i added players to auto join group players through node inspect
+ # flash add a white indicator that the screen froze
+ # i added players to auto join group players through node inspect
 	 ensure this works
- - tripwire preview, projectile and active z values
+ # tripwire preview, projectile and active z values
 	 tripwire path line below tripwire connectors
- - the preview stuff shouldnt be updated every frame
+ # the preview stuff shouldnt be updated every frame
  - when tripwire finished: remove the tripwireconnector selfmodulate synchs
+ # there's lag on first time spawn synching smoke and flash grenade
+ # try to do physics process stuff on all peers to prevent stuttering
+	 eg. projectiles, bullets, player repulsion
+ # spinnning while spawning bullets cause synch lag
+ # the flash and stun are fucked
+ - lag on first flash
+ # implement ui into new camera system
+ - (?) make tripwire base its events on body entered/body left rather than time
+ # redesign the flash texture
+ - remember deal with how game get_player works with game_team_menu
+ - kick all unsorted players on game start
+ - make game_team_menu player section scale properly
+ - ensure the removal of team menu player bars works
+ - add label to tell players that those in unsorted get kicked on game start
+ - add lobby host kick in team menu
+ - what happens on WebRTC timeout? the instance queue_frees itself but what of the loading screen
+ - game team menu join button highlight on hover
+ # on any Webrtc fatalerror go back to main menu
+ # accepting new players

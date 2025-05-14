@@ -70,13 +70,13 @@ _data = {
 [sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_nyd8r"]
 properties/0/path = NodePath(".:position")
 properties/0/spawn = true
-properties/0/replication_mode = 1
+properties/0/replication_mode = 2
 properties/1/path = NodePath("PointLight2D:enabled")
 properties/1/spawn = true
-properties/1/replication_mode = 1
+properties/1/replication_mode = 2
 properties/2/path = NodePath("PointLight2D:energy")
 properties/2/spawn = true
-properties/2/replication_mode = 1
+properties/2/replication_mode = 2
 
 [node name="FlashGrenade" type="CharacterBody2D"]
 z_index = 1

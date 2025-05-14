@@ -1,5 +1,7 @@
 extends ThrowableProjectile
 
+const dmg = Config.throwables.molotov_dmg
+
 var is_exploding = false
 
 func setup(source_ : Player, rotation_ : float, start_position_ : Vector2, throw_distance_ : float):
@@ -19,7 +21,7 @@ func setup(source_ : Player, rotation_ : float, start_position_ : Vector2, throw
 
 func _on_collided_with_player(player : Player):
 	if is_exploding:
-		print("dealing dmg to %s" % player)
+		player.take_dmg(dmg)
 
 	elif player != source:
 		explode("collision")

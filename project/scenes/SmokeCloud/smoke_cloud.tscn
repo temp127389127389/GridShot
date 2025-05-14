@@ -1,4 +1,4 @@
-[gd_scene load_steps=6 format=3 uid="uid://dhhjqpfbux20j"]
+[gd_scene load_steps=5 format=3 uid="uid://dhhjqpfbux20j"]
 
 [ext_resource type="Script" uid="uid://oyx65pywahgv" path="res://scenes/SmokeCloud/smoke_cloud.gd" id="1_mcgr6"]
 
@@ -14,41 +14,18 @@ height = 1000
 fill = 1
 fill_from = Vector2(0.5, 0.5)
 
-[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_68mqg"]
-lifetime_randomness = 0.2
-particle_flag_disable_z = true
-emission_shape_scale = Vector3(1, 1, 0)
-spread = 180.0
-initial_velocity_min = 65.0
-initial_velocity_max = 115.0
-gravity = Vector3(0, 0, 0)
-linear_accel_min = -56.0
-linear_accel_max = -56.0
-radial_accel_min = -2.23517e-06
-radial_accel_max = -2.23517e-06
-tangential_accel_min = -2.23517e-06
-tangential_accel_max = -2.23517e-06
-attractor_interaction_enabled = false
-scale_min = 0.15
-scale_max = 0.15
-color = Color(0.8, 0.8, 0.8, 1)
-turbulence_noise_strength = 0.0
-turbulence_noise_scale = 0.0
-turbulence_influence_min = 0.017
-turbulence_influence_max = 0.017
-
 [sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_mcgr6"]
 properties/0/path = NodePath(".:position")
 properties/0/spawn = true
-properties/0/replication_mode = 1
+properties/0/replication_mode = 2
 properties/1/path = NodePath(".:seed")
 properties/1/spawn = true
-properties/1/replication_mode = 1
+properties/1/replication_mode = 2
 properties/2/path = NodePath(".:emitting")
 properties/2/spawn = true
-properties/2/replication_mode = 1
+properties/2/replication_mode = 2
 
-[node name="SmokeCloud" type="GPUParticles2D"]
+[node name="SmokeCloud" type="CPUParticles2D"]
 z_index = 5
 z_as_relative = false
 emitting = false
@@ -59,9 +36,18 @@ one_shot = true
 explosiveness = 1.0
 use_fixed_seed = true
 seed = 2175897107
-collision_base_size = 0.0
-visibility_rect = Rect2(-250, -250, 500, 500)
-process_material = SubResource("ParticleProcessMaterial_68mqg")
+lifetime_randomness = 0.2
+fixed_fps = 30
+draw_order = 1
+spread = 180.0
+gravity = Vector2(0, 0)
+initial_velocity_min = 65.0
+initial_velocity_max = 115.0
+linear_accel_min = -56.0
+linear_accel_max = -56.0
+scale_amount_min = 0.15
+scale_amount_max = 0.15
+color = Color(0.8, 0.8, 0.8, 1)
 script = ExtResource("1_mcgr6")
 
 [node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="."]

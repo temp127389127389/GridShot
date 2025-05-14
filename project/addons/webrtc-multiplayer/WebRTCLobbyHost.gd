@@ -9,7 +9,9 @@ extends WebRTC
 class_name WebRTCLobbyHost
 
 # peer_id will always be 1 for the lobby host (godot enforced)
-var player_id # player_id : String | int
+# player_id 
+var player_id # : String | int, used as lobby_id
+var player_name : String
 
 
 var lobby_size : int:
@@ -40,7 +42,7 @@ var peers : Dictionary[int, Peer] = {}
 
 # signaling server related signals
 signal ReceivedPlayerID(new_id) # new_id : String | int
-signal JoinRequestReceived(src : int, password_attempt : String)
+signal JoinRequestReceived(src : int, password_attempt : String, player_name : String)
 signal LobbyReady
 
 signal SignalingServerStateChanged(state : WebSocketPeer.State)
@@ -60,11 +62,13 @@ signal FatalError(error_type : WebRTC.ErrorTypes)
 class Peer:
 	var player_id : int
 	var peer_id : int
+	var player_name : String
 	
 	# parent inherited stuff
 	var parent_player_id : String
 	var parent_multip_peer : WebRTCMultiplayerPeer
 	var signaling_server : WebSocketPeer
+	var WebRTC_url_config : Dictionary
 	
 	# local WebRTC related objects
 	var peer_connection : WebRTCPeerConnection
@@ -84,6 +88,8 @@ class Peer:
 			player_id : int,
 			peer_id : int,
 			parent_player_id : String,
+			player_name : String,
+			WebRTC_url_config : Dictionary,
 			parent_multip_peer : WebRTCMultiplayerPeer,
 			signaling_server : WebSocketPeer,
 			_on_peer_connection_closed : Callable,
@@ -91,8 +97,10 @@ class Peer:
 			log : Signal):
 		self.player_id = player_id
 		self.peer_id = peer_id
+		self.player_name = player_name
 		
 		self.parent_player_id = parent_player_id
+		self.WebRTC_url_config = WebRTC_url_config
 		self.parent_multip_peer = parent_multip_peer
 		self.signaling_server = signaling_server
 		
@@ -113,7 +121,7 @@ class Peer:
 		
 		# setup the WebRTCPeerConnection to later use with WebRTCMultiplayerPeer
 		self.peer_connection = WebRTCPeerConnection.new()
-		self.peer_connection.initialize({"iceServers": [{"urls": ["stun:stun.l.google.com:19302"]}]})
+		self.peer_connection.initialize(self.WebRTC_url_config)
 		self.peer_connection.ice_candidate_created.connect(self._on_ice_candidate_created)
 		self.peer_connection.session_description_created.connect(self._on_session_description_created)
 		
@@ -233,6 +241,7 @@ func _init(
 		lobby_name : String,
 		password_enabled : bool,
 		password : String = "",
+		player_name : String = "-",
 		log_debug : bool = false):
 	
 	assert(MinLobbySize <= lobby_size, "Lobby size %s is too small. Minimum size is %s" % [lobby_size, MinLobbySize])
@@ -247,6 +256,7 @@ func _init(
 	self.lobby_name = lobby_name
 	self.password_enabled = password_enabled
 	self.password = password
+	self.player_name = player_name
 	self.log_debug = log_debug
 
 func _ready():
@@ -286,10 +296,9 @@ func init_WebRTCMultiplayerPeer():
 	
 	# connect multiplayer signals
 	multiplayer.peer_connected.connect(PeerConnected.emit)
-	multiplayer.peer_disconnected.connect(PeerDisconnected.emit)
+	multiplayer.peer_disconnected.connect(_on_multip_peer_disconnected)
 	
 	PeerConnected.connect(_on_multip_peer_connected)
-	PeerDisconnected.connect(_on_multip_peer_disconnected)
 	
 	Log.emit("[lobby %s] init multiplayer" % player_id)
 #endregion
@@ -318,7 +327,7 @@ func _on_peer_assigned_id(new_id):
 	else:
 		LobbyReady.emit()
 
-func _on_join_request_received(src : int, password_attempt : String):
+func _on_join_request_received(src : int, password_attempt : String, player_name : String):
 	var curr_player_count = get_curr_player_count()
 	Log.emit("[lobby %s] deciding join request answer:\n\taccepting_new_players: %s\n\tcurr_player_count: %s\n\tlobby_size: %s\n\tpass enabled: %s\n\tpassword: %s\n\tpass attempt: %s" % [player_id, accepting_new_players, curr_player_count, lobby_size, password_enabled, password, password_attempt])
 	
@@ -326,12 +335,12 @@ func _on_join_request_received(src : int, password_attempt : String):
 	assert(not (password_enabled and password.is_empty()), "Password can't be an empty string when password_enabled is true")
 	
 	if accepting_new_players and curr_player_count < lobby_size and (password_enabled == false or password_attempt == password):
-		accept_join_request(src)
+		accept_join_request(src, player_name)
 	
 	else:
 		deny_join_request(src, password_attempt, curr_player_count)
 	
-func accept_join_request(src : int):
+func accept_join_request(src : int, player_name : String):
 	# this is a timer which is used to ensure the WebRTC connection was established before
 	#   WebRTCConnectionTimeout seconds has elapsed
 	var peer_connection_timer = Timer.new()
@@ -345,6 +354,8 @@ func accept_join_request(src : int):
 		src,
 		new_peer_id,
 		player_id,
+		player_name,
+		self.WebRTC_url_config,
 		multip_peer,
 		signaling_server,
 		_on_peer_connection_closed,
@@ -393,6 +404,8 @@ func _on_multip_peer_disconnected(remote_peer_id : int):
 		SignalingServerAddress,
 		{"setting": ["curr_player_count", get_curr_player_count()]}
 	)
+	
+	PeerDisconnected.emit(remote_peer_id)
 
 func _on_lobby_settings_changed(property_name : String, new_value : Variant):
 	# ensure the signaling server is connected before trying to send any setting changes
@@ -400,11 +413,12 @@ func _on_lobby_settings_changed(property_name : String, new_value : Variant):
 		return
 	
 	# ensure the lobby size isnt below minimum
-	assert(MinLobbySize <= new_value, "Lobby size %s is too small. Minimum size is %s" % [new_value, MinLobbySize])
-	assert(new_value <= MaxLobbySize, "Lobby size %s is too large. Maximum size is %s" % [new_value, MaxLobbySize])
+	if property_name == "lobby_size":
+		assert(MinLobbySize <= new_value, "Lobby size %s is too small. Minimum size is %s" % [new_value, MinLobbySize])
+		assert(new_value <= MaxLobbySize, "Lobby size %s is too large. Maximum size is %s" % [new_value, MaxLobbySize])
 	
 	# password_enabled cant be true while password is "". this isnt enforced here but in _on_join_request_received
-	#   to allow projects where this plugin is used to change password_enabled then password without worrying about throwing errors
+	#   to allow projects where this plugin is used to change password_enabled then password right after without worrying about throwing errors
 	
 	Log.emit("[lobby %s] attribute %s changed to %s" % [player_id, property_name, new_value])
 	send_packet(
@@ -444,7 +458,7 @@ func parse_packet(packet : String):
 			
 			PacketTypes.JoinRequest:
 				Log.emit("[lobby %s] received packet of type JoinRequest" % player_id)
-				JoinRequestReceived.emit(data.src, data.password)
+				JoinRequestReceived.emit(data.src, data.password, data.name)
 			
 			PacketTypes.RTCOffer, PacketTypes.RTCIce:
 				Log.emit("[lobby %s] received packet of type RTCOffer or RTCIce" % player_id)
@@ -470,12 +484,38 @@ func send_packet(type : int, dst : int, data : Dictionary = {}):
 	Log.emit("[lobby %s] sending packet\n\t%s" % [player_id, packet])
 #endregion
 
+#region interface functions
 func get_curr_player_count() -> int:
 	return len(multiplayer.get_peers()) + 1 # +1 because self is a player
+
+## NOTE: Excludes self
+func get_curr_connected_peer_ids() -> Array:
+	return Array(multiplayer.get_peers())
+
+## NOTE: Excludes self
+func get_curr_connected_peer_objects() -> Array[Peer]:
+	# any Peers in peers that arent in the list of connected peer ids is queued for deletion
+	# therefore filter them out
+	var peer_ids = get_curr_connected_peer_ids()
+	return peers.values().filter(func(peer : Peer): return peer.peer_id in peer_ids)
+
+func kick_player(peer_id : int):
+	if peer_id in peers:
+		peers[peer_id].close()
+#endregion
 
 func gen_peer_id() -> int:
 	var avail_ids = range(2, MaxLobbySize).filter(func(val): return val not in peers)
 	return avail_ids.pick_random()
+
+## Returns the player name of the peer with the given peer_id
+## Returns null if the peer wasnt found or String containig the player name
+func get_player_name_by_peer_id(peer_id : int): # -> String | null
+	var peer = peers.get(peer_id)
+	if peer == null:
+		return
+	
+	return peer.player_name
 
 func _process(_delta):
 	if multip_peer:

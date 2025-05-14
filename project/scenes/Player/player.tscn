@@ -1,85 +1,11 @@
-[gd_scene load_steps=20 format=3 uid="uid://ktbstc3wotu"]
+[gd_scene load_steps=9 format=3 uid="uid://ktbstc3wotu"]
 
 [ext_resource type="Script" uid="uid://77kuxt1qq68i" path="res://scenes/Player/player.gd" id="1_1kbk7"]
-[ext_resource type="Texture2D" uid="uid://b1yao3pavjic2" path="res://assets/tilesets/player.png" id="1_g1ksp"]
+[ext_resource type="Shader" uid="uid://cjekb8ia6rg53" path="res://assets/shaders/player_node_color.tres" id="2_1kbk7"]
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_xyikk"]
-atlas = ExtResource("1_g1ksp")
-region = Rect2(0, 0, 64, 64)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_nsh11"]
-atlas = ExtResource("1_g1ksp")
-region = Rect2(64, 0, 64, 64)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_idkj7"]
-atlas = ExtResource("1_g1ksp")
-region = Rect2(128, 0, 64, 64)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_c6fbw"]
-atlas = ExtResource("1_g1ksp")
-region = Rect2(192, 0, 64, 64)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_4hirk"]
-atlas = ExtResource("1_g1ksp")
-region = Rect2(256, 0, 64, 64)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_pdwih"]
-atlas = ExtResource("1_g1ksp")
-region = Rect2(320, 0, 64, 64)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_8fm5c"]
-atlas = ExtResource("1_g1ksp")
-region = Rect2(384, 0, 64, 64)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_1t32j"]
-atlas = ExtResource("1_g1ksp")
-region = Rect2(448, 0, 64, 64)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_w3vxd"]
-atlas = ExtResource("1_g1ksp")
-region = Rect2(512, 0, 64, 64)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_ut7c8"]
-atlas = ExtResource("1_g1ksp")
-region = Rect2(576, 0, 64, 64)
-
-[sub_resource type="SpriteFrames" id="SpriteFrames_2ovst"]
-animations = [{
-"frames": [{
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_xyikk")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_nsh11")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_idkj7")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_c6fbw")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_4hirk")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_pdwih")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_8fm5c")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_1t32j")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_w3vxd")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_ut7c8")
-}],
-"loop": true,
-"name": &"default",
-"speed": 8.0
-}]
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_gqjuk"]
+shader = ExtResource("2_1kbk7")
+shader_parameter/ClipPercentage = 0.5
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_3r6ug"]
 radius = 32.0
@@ -145,10 +71,6 @@ _data = {
 &"to ads": SubResource("Animation_kax2m")
 }
 
-[sub_resource type="LabelSettings" id="LabelSettings_ge3xo"]
-font_size = 21
-font_color = Color(1, 0, 0, 1)
-
 [sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_3oy5e"]
 properties/0/path = NodePath(".:position")
 properties/0/spawn = true
@@ -158,7 +80,22 @@ properties/1/spawn = true
 properties/1/replication_mode = 1
 properties/2/path = NodePath("DirectionMarker:points")
 properties/2/spawn = true
-properties/2/replication_mode = 1
+properties/2/replication_mode = 2
+properties/3/path = NodePath("DirectionMarker:visible")
+properties/3/spawn = true
+properties/3/replication_mode = 2
+properties/4/path = NodePath(".:modulate")
+properties/4/spawn = true
+properties/4/replication_mode = 2
+properties/5/path = NodePath(".:team")
+properties/5/spawn = true
+properties/5/replication_mode = 2
+properties/6/path = NodePath("PlayerColor:color")
+properties/6/spawn = true
+properties/6/replication_mode = 2
+properties/7/path = NodePath(".:hp")
+properties/7/spawn = true
+properties/7/replication_mode = 2
 
 [node name="Player" type="CharacterBody2D" groups=["players"]]
 light_mask = 2
@@ -171,13 +108,16 @@ floor_block_on_wall = false
 script = ExtResource("1_1kbk7")
 metadata/_edit_horizontal_guides_ = [-599.0]
 
-[node name="Camera2D" type="Camera2D" parent="."]
-
-[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
-sprite_frames = SubResource("SpriteFrames_2ovst")
-autoplay = "default"
+[node name="PlayerColor" type="ColorRect" parent="."]
+material = SubResource("ShaderMaterial_gqjuk")
+offset_left = -32.0
+offset_top = -32.0
+offset_right = 32.0
+offset_bottom = 32.0
+mouse_filter = 2
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+visible = false
 shape = SubResource("CircleShape2D_3r6ug")
 
 [node name="DirectionMarker" type="Line2D" parent="."]
@@ -195,18 +135,11 @@ libraries = {
 }
 autoplay = "RESET"
 
-[node name="Label" type="Label" parent="."]
-visible = false
-offset_top = -253.0
-offset_right = 40.0
-offset_bottom = -223.0
-text = "0"
-label_settings = SubResource("LabelSettings_ge3xo")
-
 [node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="."]
 replication_config = SubResource("SceneReplicationConfig_3oy5e")
 
 [node name="PlayerRepulsionArea2D" type="Area2D" parent="."]
+visible = false
 collision_layer = 0
 collision_mask = 2
 

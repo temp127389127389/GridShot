@@ -28,6 +28,8 @@ Globals="*res://global scripts/globals.gd"
 
 window/size/viewport_width=960
 window/size/viewport_height=540
+window/stretch/mode="viewport"
+window/stretch/scale=0.6
 window/vsync/vsync_mode=0
 
 [editor_plugins]
@@ -39,8 +41,10 @@ enabled=PackedStringArray("res://addons/dev_time_tracker/plugin.cfg", "res://add
 folder_colors={
 "res://global scripts/": "purple",
 "res://scenes/": "green",
+"res://scenes/PlayerCameraEffects/": "blue",
 "res://scenes/Projectiles/": "red",
-"res://script classes/": "orange"
+"res://scenes/UI/": "yellow",
+"res://script classes/": "pink"
 }
 
 [filesystem]
@@ -50,6 +54,9 @@ import/blender/enabled=false
 [global_group]
 
 players=""
+"screen flash"=""
+"player stun"=""
+"team menu player bar"=""
 
 [input]
 
@@ -150,6 +157,11 @@ Space={
 , Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":0,"window_id":0,"alt_pressed":false,"shift_pressed":false,"ctrl_pressed":false,"meta_pressed":false,"pressed":false,"keycode":0,"physical_keycode":4194445,"key_label":0,"unicode":0,"location":0,"echo":false,"script":null)
 ]
 }
+R={
+"deadzone": 0.2,
+"events": [Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":-1,"window_id":0,"alt_pressed":false,"shift_pressed":false,"ctrl_pressed":false,"meta_pressed":false,"pressed":false,"keycode":0,"physical_keycode":82,"key_label":0,"unicode":114,"location":0,"echo":false,"script":null)
+]
+}
 
 [layer_names]
 
@@ -160,4 +172,4 @@ Space={
 
 renderer/rendering_method="gl_compatibility"
 renderer/rendering_method.mobile="gl_compatibility"
-environment/defaults/default_clear_color=Color(0.211765, 0.239216, 0.290196, 1)
+environment/defaults/default_clear_color=Color(0, 0, 0, 1)

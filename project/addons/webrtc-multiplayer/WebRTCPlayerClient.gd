@@ -11,11 +11,13 @@ class_name WebRTCPlayerClient
 
 var peer_id : int   # used for webrtc multiplayer connection
 var player_id : int # used for matchmaking
+var player_name : String # used for matchmaking
 
-var lobby_to_conn_to : String
+var lobby_to_conn_to : String # aka lobby_id
 var JoinRequestAnswerTimer : Timer
 var WebRTCConnectionTimer : Timer
 var lobby_list_hash : String
+var lobby_list : Dictionary
 
 var json : JSON
 
@@ -99,7 +101,7 @@ func init_WebRTCConnection():
 
 	# setup the WebRTCPeerConnection to later use with WebRTCMultiplayerPeer
 	peer_connection = WebRTCPeerConnection.new()
-	peer_connection.initialize({"iceServers": [{"urls": ["stun:stun.l.google.com:19302"]}]})
+	peer_connection.initialize(self.WebRTC_url_config)
 	peer_connection.ice_candidate_created.connect(_on_ice_candidate_created)
 	peer_connection.session_description_created.connect(_on_session_description_created)
 	peer_connection.data_channel_received.connect(_on_data_channel_received)
@@ -229,6 +231,7 @@ func _on_received_lobby_list(lobby_dict : Dictionary, hash : String):
 
 	# lobby_list_hash is used for lobby setting version control
 	lobby_list_hash = hash
+	lobby_list = lobby_dict
 	
 	Log.emit("[player %s %s] set lobby list hash to \"%s\"" % [player_id, peer_id, lobby_list_hash])
 
@@ -400,11 +403,12 @@ func _process(_delta):
 		var packet : PackedByteArray = signaling_server.get_packet()
 		parse_packet(packet.get_string_from_ascii())
 
-## Request to join a lobby be first sending a JoinRequest over the signalong server.
+## Request to join a lobby by first sending a JoinRequest over the signaling server.
 ## The actual join logic happens in `_on_join_request_answer_received`.
-func join_lobby(lobby_id : String, password : String = ""):
+func join_lobby(lobby_id : String, password : String = "", player_name : String = "-"):
 	lobby_to_conn_to = lobby_id
-	send_packet(PacketTypes.JoinRequest, lobby_id, {"password": password})
+	self.player_name = player_name
+	send_packet(PacketTypes.JoinRequest, lobby_id, {"password": password, "name": player_name})
 	JoinRequestAnswerTimer.start()
 
 ## Request a list (actually a dictionary) from the signaling server containing data about all the

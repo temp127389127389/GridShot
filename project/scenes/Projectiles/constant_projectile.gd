@@ -1,7 +1,9 @@
 extends ProjectileBase
 class_name ConstantProjectile
 
-func setup(source_ : Player, rotation_ : float, start_position_ : Vector2):
+var dmg : int
+
+func setup(source_ : Player, rotation_ : float, start_position_ : Vector2, dmg_ : int):
 	self.source = source_
 
 	self.rotation = rotation_
@@ -9,3 +11,5 @@ func setup(source_ : Player, rotation_ : float, start_position_ : Vector2):
 
 	self.start_position = start_position_
 	self.position = self.start_position + self.direction * 64 # offset spawn position from player center
+	
+	self.dmg = dmg_

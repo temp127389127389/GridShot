@@ -12,6 +12,12 @@ var player_raycast : RayCast2D
 var source : Player :
 	set = _on_source_set
 
+var parent_util : Throwable
+
+var old_player_position = null
+var old_player_rotation = null
+var old_position = null
+
 var tripwire_valid = false
 
 func _ready():
@@ -22,6 +28,12 @@ func _on_source_set(new_value):
 	player_raycast = source.get_node("ThrowablePreviewRaycast")
 
 func _process(_delta):
+	if parent_util:
+		visible = parent_util.is_in_hand
+	
+	if not player_raycast:
+		return
+	
 	if player_raycast.is_colliding():
 		position = player_raycast.get_collision_point()
 		rotation = player_raycast.get_collision_normal().angle()
@@ -36,32 +48,38 @@ func _process(_delta):
 		tripwire_valid = false
 	
 	
+	# if no values changed since last frame dont update the lines and stuff
+	if [
+			source.position == old_player_position,
+			source.rotation == old_player_rotation,
+			position == old_position
+			].all(func(val): return val):
+		return
+	
 	if tripwire_valid:
-		tripwire_connector_1.default_color = Color("#0c7f96") # turquoise
+		tripwire_connector_1.default_color = Color("#0c7f96") # turquoise/cyan
 		
 		tripwire_connector_2.visible = true
 		tripwire_connector_2.position = to_local(tripwire_length_raycast.get_collision_point())
 		tripwire_connector_2.global_rotation = tripwire_length_raycast.get_collision_normal().angle()
 		
 		tripwire_line.set_point_position(1, tripwire_connector_2.position)
-		
-		# TODO THIS SHIT SHOULDNT UPDATE EVERY FRAME
-		
+	
 	else:
 		tripwire_connector_1.default_color = Color("#c92e2ed3") # red
 		
 		tripwire_connector_2.visible = false
 		tripwire_line.set_point_position(1, Vector2.ZERO)
 	
-	move_path_line()
+	old_player_position = source.position
+	old_player_rotation = source.rotation
+	old_position = position
+
 
 
 func check_tripwire_length_valid() -> bool:
 	tripwire_length_raycast.force_raycast_update()
-	if tripwire_length_raycast.is_colliding():
-		return true
-	else:
-		return false
+	return tripwire_length_raycast.is_colliding()
 
 func move_path_line():
 	var preview_position = to_local(global_position)

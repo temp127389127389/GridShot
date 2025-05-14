@@ -12,6 +12,7 @@ signal CollidedWithEnvironment
 
 func _physics_process(_delta):
 	if not is_multiplayer_authority():
+		move_and_slide()
 		return
 	
 	velocity = direction * movement_speed

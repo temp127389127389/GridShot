@@ -10,16 +10,34 @@ var source : Player :
 		source = new_value
 		_on_source_set()
 
+var parent_util : Throwable
+
+var old_player_position = null
+var old_player_rotation = null
+var old_position = null
+
 func _on_source_set():
 	player_raycast = source.get_node("ThrowablePreviewRaycast")
 
 func _process(_delta):
+	if parent_util:
+		visible = parent_util.is_in_hand
+	
 	# move the preview box
 	if player_raycast.is_colliding():
 		position = player_raycast.get_collision_point()
 	else:
 		var direction = Vector2.from_angle(player_raycast.global_rotation)
 		position = player_raycast.global_position + direction * player_raycast.target_position.length()
+	
+	# if no values changed since last frame dont update the lines and stuff
+	if [
+			source.position == old_player_position,
+			source.rotation == old_player_rotation,
+			position == old_position
+			].all(func(val): return val):
+		return
+	
 	
 	# move the path line
 	var preview_position = to_local(global_position)
@@ -37,3 +55,7 @@ func _process(_delta):
 	
 	# update distance to player, which is used when firing
 	distance_from_player = source.position.distance_to(position)
+	
+	old_player_position = source.position
+	old_player_rotation = source.rotation
+	old_position = position
